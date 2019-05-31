@@ -1,12 +1,13 @@
 package urlshort
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"gopkg.in/yaml.v2"
 )
 
-type pathURL struct {
+type PathURL struct {
 	Path string `yaml:"path"`
 	URL  string `yaml:"url"`
 }
@@ -44,11 +45,31 @@ func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.Handl
 // See MapHandler to create a similar http.HandlerFunc via
 // a mapping of paths to urls.
 func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
-	var items []pathURL
+	var items []PathURL
 	err := yaml.Unmarshal(yml, &items)
-	itemsMap := make(map[string]string)
-	for i := range items {
-		itemsMap[items[i].Path] = items[i].URL
-	}
+	itemsMap := pathURLtoMap(items)
 	return MapHandler(itemsMap, fallback), err
+}
+
+// JSONHandler will parse the provided JSON and then return
+// an http.HandlerFunc (which also implements http.Handler)
+//
+// JSON is expected to be in the format:
+// [
+// {"path": "/some-path", "url": "https://www.some-url.com/demo"},
+// {"path": "/some-other-path", "url": "https://www.some-other-url.com/demo"}
+// ]
+func JSONHandler(jsonBytes []byte, fallback http.Handler) (http.HandlerFunc, error) {
+	var items []PathURL
+	err := json.Unmarshal(jsonBytes, &items)
+	itemsMap := pathURLtoMap(items)
+	return MapHandler(itemsMap, fallback), err
+}
+
+func pathURLtoMap(pathURLs []PathURL) map[string]string {
+	itemMap := map[string]string{}
+	for i := range pathURLs {
+		itemMap[pathURLs[i].Path] = pathURLs[i].URL
+	}
+	return itemMap
 }
