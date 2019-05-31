@@ -1,0 +1,12 @@
+---
+
+- path: /google
+  url: https://www.duckduckgo.com
+- path: /hn
+  url: https://news.ycombinator.com
+- path: /slashdot
+  url: https://slashdot.org
+- path: /la
+  url: https://linuxacademy.com
+- path: /safari
+  url: https://learning.oreilly.com/home/

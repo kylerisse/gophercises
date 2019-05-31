@@ -6,11 +6,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// YamlList is a list of redirect elements
-type YamlList []YamlElement
-
-// YamlElement is a single redirect element
-type YamlElement struct {
+type pathURL struct {
 	Path string `yaml:"path"`
 	URL  string `yaml:"url"`
 }
@@ -48,11 +44,11 @@ func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.Handl
 // See MapHandler to create a similar http.HandlerFunc via
 // a mapping of paths to urls.
 func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
-	var yamlItems YamlList
-	err := yaml.Unmarshal(yml, &yamlItems)
-	yamlMap := make(map[string]string)
-	for i := range yamlItems {
-		yamlMap[yamlItems[i].Path] = yamlItems[i].URL
+	var items []pathURL
+	err := yaml.Unmarshal(yml, &items)
+	itemsMap := make(map[string]string)
+	for i := range items {
+		itemsMap[items[i].Path] = items[i].URL
 	}
-	return MapHandler(yamlMap, fallback), err
+	return MapHandler(itemsMap, fallback), err
 }
