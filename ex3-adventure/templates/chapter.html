@@ -1,0 +1,14 @@
+<html>
+    <head>
+        <title>Choose Your Own Adventure</title>
+    </head>
+    <body>
+        <h2>{{ .Title }}</h2>
+        {{ range .Paragraphs }}
+        <p>{{ . }}</p>
+        {{ end }}
+        {{ range .Choices }}
+        <li>{{ .Text }} <a href="http://localhost:8080/chapter/{{ .Chapter }}">{{ .Chapter }}</a></li>
+        {{ end }}
+    </body>
+</html>
