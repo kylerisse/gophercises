@@ -15,6 +15,8 @@ func main() {
 	flag.StringVar(&yamlFile, "y", "", "specify yaml file to load")
 	var jsonFile string
 	flag.StringVar(&jsonFile, "j", "", "specify json file to load")
+	var dbString string
+	flag.StringVar(&dbString, "d", "postgresql://postgres:password@localhost/postgres?sslmode=disable", "specify a DB connection string")
 	flag.Parse()
 
 	mux := defaultMux()
@@ -31,16 +33,26 @@ func main() {
 	// YAMLHandler using the mapHandler as the fallback
 	yamlHandler, err := urlshort.YAMLHandler(yaml, mapHandler)
 	if err != nil {
-		panic(err)
+		fmt.Println(err.Error())
 	}
 
 	jsonBytes := readJSONfile(jsonFile)
 
 	// JSONHandler using the yamlHandler as the fallback
 	jsonHandler, err := urlshort.JSONHandler(jsonBytes, yamlHandler)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+
+	// DBHandler using the jsonHandler as the fallback
+	dbHandler, err := urlshort.DBHandler(dbString, jsonHandler)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
 	fmt.Println("Starting the server on :8080")
-	http.ListenAndServe(":8080", jsonHandler)
+	http.ListenAndServe(":8080", dbHandler)
 }
 
 func defaultMux() *http.ServeMux {

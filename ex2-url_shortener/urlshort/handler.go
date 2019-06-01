@@ -1,12 +1,16 @@
 package urlshort
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 
+	// postgres compatibility for sql
+	_ "github.com/lib/pq"
 	"gopkg.in/yaml.v2"
 )
 
+// PathURL has a short url and redirect path
 type PathURL struct {
 	Path string `yaml:"path"`
 	URL  string `yaml:"url"`
@@ -64,6 +68,35 @@ func JSONHandler(jsonBytes []byte, fallback http.Handler) (http.HandlerFunc, err
 	err := json.Unmarshal(jsonBytes, &items)
 	itemsMap := pathURLtoMap(items)
 	return MapHandler(itemsMap, fallback), err
+}
+
+// DBHandler will get records from a database and then return
+// an http.HandlerFunc (which also implements http.Handler)
+//
+// DB connection string should contain all relevant parameters
+// a table named items is assumed
+func DBHandler(connStr string, fallback http.Handler) (http.HandlerFunc, error) {
+	itemMap := map[string]string{}
+	if connStr == "" {
+		return MapHandler(itemMap, fallback), nil
+	}
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		return MapHandler(itemMap, fallback), err
+	}
+	rows, err := db.Query("SELECT * FROM items;")
+	if err != nil {
+		return MapHandler(itemMap, fallback), err
+	}
+	for rows.Next() {
+		var row PathURL
+		err := rows.Scan(&row.Path, &row.URL)
+		if err != nil {
+			continue
+		}
+		itemMap[row.Path] = row.URL
+	}
+	return MapHandler(itemMap, fallback), nil
 }
 
 func pathURLtoMap(pathURLs []PathURL) map[string]string {
