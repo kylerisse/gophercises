@@ -44,7 +44,6 @@ func main() {
 		fmt.Println(err.Error())
 	}
 
-
 	// DBHandler using the jsonHandler as the fallback
 	dbHandler, err := urlshort.DBHandler(dbString, jsonHandler)
 	if err != nil {

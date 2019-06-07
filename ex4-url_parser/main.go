@@ -27,5 +27,4 @@ func main() {
 			fmt.Println("Href: '" + links[j].Href + "' Text: '" + links[j].Text + "'")
 		}
 	}
-	
 }

@@ -22,8 +22,8 @@ func setMux(st adventure.Story, chTemplate string) *http.ServeMux {
 	mux := http.NewServeMux()
 	for k := range st {
 		fmt.Println("Adding chapter " + k + " to story.")
-		mux.HandleFunc("/chapter/" + k, st.ChapterHandler(k, chTemplate))
+		mux.HandleFunc("/chapter/"+k, st.ChapterHandler(k, chTemplate))
 	}
-	mux.HandleFunc("/", st.ChapterHandler("intro", chTemplate))	
+	mux.HandleFunc("/", st.ChapterHandler("intro", chTemplate))
 	return mux
 }
