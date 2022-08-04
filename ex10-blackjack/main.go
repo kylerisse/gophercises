@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"./blackjack"
+	"github.com/kylerisse/gophercises/ex10-blackjack/blackjack"
 )
 
 func main() {
